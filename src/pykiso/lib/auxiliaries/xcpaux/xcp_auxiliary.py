@@ -23,6 +23,7 @@ from typing import Any
 from pykiso import CChannel, SimpleAuxiliaryInterface
 from pyxcp.master import Master
 from pyxcp.master.errorhandler import disable_error_handling
+from pya2l import DB
 
 from .utils import AcqTasks
 from .xcp_daq import Daq
@@ -51,7 +52,10 @@ class XcpAuxiliary(SimpleAuxiliaryInterface):
         self.channel = com
         self.adapter = None
         self.com_config = self.open_json(com_config)
-        self.symbols_config = self.open_json(symbols_config)
+        # self.symbols_config = self.open_json(symbols_config)
+        self.symbols_a2l= DB().import_a2l(symbols_config)
+        print("wadwadwadwadwadwadwad")
+        print(type(self.symbols_a2l))
         self.daq = None
         self.master_xcp = None
         self.transport_type = self.com_config["TRANSPORT"].lower()

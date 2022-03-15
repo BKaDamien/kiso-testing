@@ -35,6 +35,7 @@ install_requires = [
     "robotframework==3.2.2",
     "pyvisa",
     "pyvisa-py",
+    "pya2ldb",
 ]
 
 setup(
