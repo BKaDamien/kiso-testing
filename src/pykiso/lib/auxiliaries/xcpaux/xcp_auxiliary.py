@@ -53,8 +53,9 @@ class XcpAuxiliary(SimpleAuxiliaryInterface):
         self.adapter = None
         self.com_config = self.open_json(com_config)
         # self.symbols_config = self.open_json(symbols_config)
-        self.symbols_a2l= DB().import_a2l(symbols_config)
-        print("wadwadwadwadwadwadwad")
+        print("START")
+        self.symbols_a2l= DB().import_a2l(symbols_config, encoding="utf-8")
+        print("END")
         print(type(self.symbols_a2l))
         self.daq = None
         self.master_xcp = None

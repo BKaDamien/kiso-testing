@@ -35,6 +35,7 @@ install_requires = [
     "pyvisa",
     "pyvisa-py",
     "pya2ldb",
+    "pyxcp==0.18.22",
 ]
 
 setup(
