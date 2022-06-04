@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import NamedTuple, Optional, Tuple
 
 import click
-
+import pykiso
 from . import __version__
 from .config_parser import parse_config
 from .global_config import Grabber
@@ -207,13 +207,13 @@ def main(
     :param pattern: overwrite the pattern from the YAML file for easier testdevelopment
     :param failfast: stop the test run on the first error or failure
     """
-
     if log_path and Path(log_path).is_file():
         Path(log_path).unlink()
 
     for config_file in test_configuration_file:
         # Set the logging
         logger = initialize_logging(log_path, log_level, report_type)
+        logger.critical("I am in editable")
         # Get YAML configuration
         cfg_dict = parse_config(config_file)
         # Run tests
@@ -228,5 +228,7 @@ def main(
         for handler in logging.getLogger().handlers:
             if isinstance(handler, logging.FileHandler):
                 logging.getLogger().removeHandler(handler)
+
+    pykiso.Records.write_records()
 
     sys.exit(exit_code)

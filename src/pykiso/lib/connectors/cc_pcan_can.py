@@ -27,12 +27,11 @@ import can
 import can.bus
 import can.interfaces.pcan.basic as PCANBasic
 
-from pykiso import CChannel, Message
+from pykiso import CChannel, Message, Records
 
 MessageType = Union[Message, bytes]
 
 log = logging.getLogger(__name__)
-
 
 class PcanFilter(logging.Filter):
     """Filter specific pcan logging messages"""
@@ -344,6 +343,7 @@ class CCPCanCan(CChannel):
 
         :return: the received data and the source can id
         """
+
         try:  # Catch bus errors & rcv.data errors when no messages where received
             received_msg = self.bus.recv(timeout=timeout or self.timeout)
 
@@ -363,3 +363,91 @@ class CCPCanCan(CChannel):
         except Exception:
             log.exception(f"encountered error while receiving message via {self}")
             return {"msg": None}
+
+if __name__ == "__main__":
+
+    import threading
+    import time
+    import functools
+
+    tx_lock = threading.Lock()
+    rx_lock = threading.Lock()
+
+
+
+    def lock_tx(func):
+        @functools.wraps(func)
+        def lock_inner(*arg, **kwargs):
+
+            tx_lock.acquire()
+            ret = func(*arg, **kwargs)
+            tx_lock.release()
+
+            return ret
+        return lock_inner
+
+    def lock_rx(func):
+        @functools.wraps(func)
+        def lock_inner(*arg, **kwargs):
+
+            rx_lock.acquire()
+            ret = func(*arg, **kwargs)
+            rx_lock.release()
+
+            return ret
+        return lock_inner
+
+
+    @Records.execution_time
+    @lock_tx
+    def _send(bus):
+            can_msg = can.Message(
+                arbitration_id=0x123,
+                data=b"\x01\x02\x03\x01\x02\x03\x01\x02\x03\x01\x02\x03\x01\x02\x03\x01\x02\x03",
+                is_extended_id=False
+                is_fd=True,
+                bitrate_switch=False,
+            )
+            bus.send(can_msg)
+            time.sleep(0.001)
+
+    def send(bus, event):
+        while not event.is_set():
+            _send(bus)
+
+
+    @Records.execution_time
+    @lock_rx
+    def _recv(bus):
+        try:
+            received_msg = bus.recv(timeout=1)
+            frame_id = received_msg.arbitration_id
+            payload = received_msg.data
+        except can.CanError as can_error:
+            log.debug(f"encountered can error: {can_error}")
+        except Exception:
+            log.exception(f"encountered error while receiving message via pcan")
+
+    
+    def recv(bus, event):
+        while not event.is_set(): 
+            _recv(bus)
+
+    con = CCPCanCan()
+    con._cc_open()
+    stop_event_tx = threading.Event()
+    stop_event_rx = threading.Event()
+    tx = threading.Thread(target=send, args=(con.bus, stop_event_tx))
+    rx = threading.Thread(target=recv, args=(con.bus, stop_event_rx))
+
+    rx.start()
+    tx.start()
+    
+    time.sleep(50)
+
+    stop_event_tx.set()
+    stop_event_rx.set()
+    tx.join()
+    rx.join()
+    con._cc_close()
+    Records.write_records()

@@ -41,3 +41,50 @@ from .test_coordinator.test_suite import (
     BasicTestSuiteSetup,
     BasicTestSuiteTeardown,
 )
+
+
+import functools
+import time
+import logging
+from dataclasses import dataclass
+import psutil
+import os
+
+@dataclass
+class Rec:
+
+    obj: str
+    func : str
+    start : float
+    stop : float = None
+    elapse : float = None
+
+class Records:
+
+    stats = {}
+
+    def execution_time(func):
+
+        @functools.wraps(func)
+        def record_inner(self, *args, **kwargs):
+            f_name = func.__name__
+            record = Rec(type(self).__name__, f_name, time.perf_counter())
+            ret = func(self, *args, **kwargs)
+            record.stop = time.perf_counter()
+            record.elapse = record.stop - record.start
+
+            if Records.stats.get(f_name) is None:
+                Records.stats[f_name] = []
+
+            Records.stats[f_name].append(record)
+            return ret
+        return record_inner
+
+
+    def write_records():
+        
+        for func, record in Records.stats.items():
+            with open(f"records_{func}.csv", "w+") as file:
+                for idx, rec in enumerate(record):
+                    file.write(f"{idx};{rec.obj};{rec.func};{str(float(float(rec.elapse) * 1000)).replace('.', ',')};ms \n")
+
