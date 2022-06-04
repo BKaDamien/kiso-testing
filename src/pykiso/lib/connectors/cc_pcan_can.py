@@ -404,7 +404,7 @@ if __name__ == "__main__":
             can_msg = can.Message(
                 arbitration_id=0x123,
                 data=b"\x01\x02\x03\x01\x02\x03\x01\x02\x03\x01\x02\x03\x01\x02\x03\x01\x02\x03",
-                is_extended_id=False
+                is_extended_id=False,
                 is_fd=True,
                 bitrate_switch=False,
             )
