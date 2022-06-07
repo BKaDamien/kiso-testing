@@ -76,8 +76,10 @@ class CChannel(Connector):
         super().__init__(**kwargs)
         if processing:
             self._lock = multiprocessing.RLock()
+            self._lock_tx = multiprocessing.RLock()
         else:
             self._lock = threading.RLock()
+            self._lock_tx = threading.RLock()
 
     def open(self) -> None:
         """Open a thread-safe channel.
@@ -85,16 +87,16 @@ class CChannel(Connector):
         :raise ConnectionRefusedError: when lock acquire failed
         """
         # If we successfully lock the channel, open it
-        if self._lock.acquire(False):
-            self._cc_open()
-        else:
-            raise ConnectionRefusedError
+        # if self._lock.acquire(False):
+        self._cc_open()
+        # else:
+        #     raise ConnectionRefusedError
 
     def close(self) -> None:
         """Close a thread-safe channel."""
         # Close channel and release lock
         self._cc_close()
-        self._lock.release()
+        #self._lock.release()
 
     def cc_send(self, msg: MsgType, raw: bool = False, **kwargs):
         """Send a thread-safe message on the channel and wait for an acknowledgement.
@@ -105,11 +107,11 @@ class CChannel(Connector):
         :raise ConnectionRefusedError: when lock acquire failed
         """
         # TODO should block be a parameter?
-        if self._lock.acquire(False):
+        if self._lock_tx.acquire(False):
             self._cc_send(msg=msg, raw=raw, **kwargs)
         else:
             raise ConnectionRefusedError
-        self._lock.release()
+        self._lock_tx.release()
 
     def cc_receive(self, timeout: float = 0.1, raw: bool = False) -> dict:
         """Read a thread-safe message on the channel and send an acknowledgement.

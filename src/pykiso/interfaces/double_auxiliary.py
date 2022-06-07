@@ -6,28 +6,36 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 ##########################################################################
-
+import abc
 import logging
 import threading
+import queue
+import time
 
-from typing import List
+from typing import List, Optional, Any
+from pykiso import CChannel
+from pykiso.test_setup.dynamic_loader import PACKAGE
 
-from pykiso import Records
+#from pykiso import Records
+from ..exceptions import AuxiliaryCreationError
+from ..types import MsgType
 
 log = logging.getLogger(__name__)
 
 
 class DoubleThreadAuxiliary:
 
-    def __init__(self, com: CChannel, activate_log: List[str] = None, is_proxy_capable=False) -> None:
-        self.com = com
+    def __init__(self, name : str = None, auto_start: bool = True, activate_log: List[str] = None, is_proxy_capable=False) -> None:
+        self.name = name
         self.is_proxy_capable = is_proxy_capable
         self.initialize_loggers(activate_log)
         self.lock = threading.RLock()
         self.stop_tx = threading.Event()
         self.stop_rx = threading.Event()
         self.queue_in = queue.Queue()
+        self.queue_tx = queue.Queue()
         self.queue_out = queue.Queue()
+        self.is_instance = False
 
     @staticmethod
     def initialize_loggers(loggers: Optional[List[str]]) -> None:
@@ -67,13 +75,14 @@ class DoubleThreadAuxiliary:
         with self.lock:
             created = self._create_auxiliary_instance()
 
-            if not created
+            if not created:
                 raise AuxiliaryCreationError(self.name)
 
-            self.tx_thread = threading.Thread(target=_transmit_task, args=(self.stop_tx))
-            self.rx_thread = threading.Thread(target=_reception_task, args=(self.stop_rx))
+            self.tx_thread = threading.Thread(target=self._transmit_task)
+            self.rx_thread = threading.Thread(target=self._reception_task)
             self.rx_thread.start()
             self.tx_thread.start()
+            self.is_instance = True
 
             return created
 
@@ -81,21 +90,24 @@ class DoubleThreadAuxiliary:
         with self.lock:
             deleted = self._delete_auxiliary_instance()
 
-            if not deleted
+            if not deleted:
                 log.error("Unexpected error occured during auxiliary instance deletion")
-
+            self.is_instance = False
             return deleted
 
     def stop(self):
-        self.rx_thread.set()
-        self.tx_thread.set()
-        stopped = self.run_command(cmd_messag="stop")
+        self.stop_rx.set()
+        self.stop_tx.set()
+        stopped = self.run_command(cmd_message="stop")
 
         if not stopped:
             log.critical("Unexpected error occured during running stop command!")
 
         self.rx_thread.join()
         self.tx_thread.join()
+
+    def associat_tx_queue(self, queue):
+        self.used_queue = queue 
 
     def run_command(
             self,
@@ -105,13 +117,13 @@ class DoubleThreadAuxiliary:
             timeout_in_s: int = 5,
         ) -> bool:
 
-            with self.lock.acquire():
+            with self.lock:
                 self.queue_in.put((cmd_message, cmd_data))
 
                 try:
                     response_received = self.queue_out.get(blocking, timeout_in_s)
                     log.info(
-                        f"reply to command '{cmd_message}' received: '{return_code}' in {self}"
+                        f"reply to command '{cmd_message}' received: '{response_received}' in {self}"
                     )
                 except queue.Empty:
                     log.error("no reply received within time")
@@ -119,26 +131,27 @@ class DoubleThreadAuxiliary:
 
             return response_received
 
-    def _transmit_task(self, stop_event):
+    def _transmit_task(self):
 
-        while not stop_event.is_set():
+        while not self.stop_tx.is_set():
 
             cmd, data = self.queue_in.get()
 
             if cmd == "stop":
                 self.queue_out.put(True)
+                break
 
             response = self._run_command(cmd, data)
             if response is not None:
                 self.queue_out.put(response)
 
-    def _reception_task(self, stop_event):
+    def _reception_task(self):
 
-        while not stop_event.is_set():
+        while not self.stop_rx.is_set():
             recv_message = self._receive_message(timeout_in_s=1)
-        # If yes, send it via the out queue
-        if recv_message is not None:
-            self.queue_out.put(recv_message)
+            # If yes, send it via the out queue
+            if recv_message is not None:
+                self.queue_out.put(recv_message)
 
     def wait_and_get_report(
         self, blocking: bool = False, timeout_in_s: int = 0
@@ -202,7 +215,7 @@ class DoubleThreadAuxiliary:
 
 class ComAux(DoubleThreadAuxiliary):
 
-    def __init__(self, **kwargs):
+    def __init__(self, com: CChannel, **kwargs):
         """Constructor.
 
         :param com: CChannel that supports raw communication
@@ -259,6 +272,7 @@ class ComAux(DoubleThreadAuxiliary):
         state = False
         log.info("Create auxiliary instance")
         log.info("Enable channel")
+        self.associat_tx_queue(self.queue_tx)
         try:
             self.channel.open()
             state = True
@@ -315,9 +329,9 @@ class ComAux(DoubleThreadAuxiliary):
                 log.exception(
                     f"encountered error while sending message '{cmd_data}' to {self.channel}"
                 )
-        elif isinstance(cmd_message, Message):
-            log.debug(f"ignored command '{cmd_message} in {self}'")
-            return True
+        # elif isinstance(cmd_message, Message):
+        #     log.debug(f"ignored command '{cmd_message} in {self}'")
+        #     return True
         else:
             log.warning(f"received unknown command '{cmd_message} in {self}'")
         return False

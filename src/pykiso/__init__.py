@@ -30,6 +30,7 @@ from .connector import CChannel, Flasher
 from .interfaces.mp_auxiliary import MpAuxiliaryInterface
 from .interfaces.simple_auxiliary import SimpleAuxiliaryInterface
 from .interfaces.thread_auxiliary import AuxiliaryInterface
+from .interfaces.double_auxiliary import DoubleThreadAuxiliary
 from .message import Message
 from .test_coordinator import test_case, test_message_handler, test_suite
 from .test_coordinator.test_case import (
