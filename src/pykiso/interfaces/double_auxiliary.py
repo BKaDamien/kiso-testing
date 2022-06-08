@@ -31,6 +31,7 @@ class DoubleThreadAuxiliary:
         self.is_proxy_capable = is_proxy_capable
         self.initialize_loggers(activate_log)
         self.lock = threading.RLock()
+        #self.lock_tx = threading.Lock()
         self.stop_tx = threading.Event()
         self.stop_rx = threading.Event()
         self.queue_in = queue.Queue()
@@ -80,8 +81,8 @@ class DoubleThreadAuxiliary:
             if not created:
                 raise AuxiliaryCreationError(self.name)
 
-            self.tx_thread = threading.Thread(target=self._transmit_task)
-            self.rx_thread = threading.Thread(target=self._reception_task)
+            self.tx_thread = threading.Thread(name = f"{self.name}_tx", target=self._transmit_task)
+            self.rx_thread = threading.Thread(name = f"{self.name}_rx", target=self._reception_task)
             self.rx_thread.start()
             self.tx_thread.start()
             self.is_instance = True
@@ -472,6 +473,16 @@ class ProxyAuxiliary(DoubleThreadAuxiliary):
                 f"Auxiliary {aux} is not compatible with a proxy auxiliary"
             )
 
+    def stop(self):
+        log.info(f"stop auxiliary {self.name}")
+        self.stop_rx.set()
+        self.rx_thread.join()
+
+
+    def _dispatch_callback(self):
+        for conn in self.proxy_channels:
+            conn.add_callback(self.run_command)
+
     def _create_auxiliary_instance(self) -> bool:
         """Open current associated channel.
 
@@ -481,6 +492,7 @@ class ProxyAuxiliary(DoubleThreadAuxiliary):
             log.info("Create auxiliary instance")
             log.info("Enable channel")
             self.channel.open()
+            self._dispatch_callback()
             return True
         except Exception as e:
             log.exception(f"Error encouting during channel creation, reason : {e}")
@@ -500,23 +512,16 @@ class ProxyAuxiliary(DoubleThreadAuxiliary):
         finally:
             return True
 
-    def _run_command(self) -> None:
+    def _run_command(self, conn, *args, **kwargs) -> None:
         """Run all commands present in each proxy connectors queue in
         by sending it over current associated CChannel.
 
         In addition, all commands are dispatch to others auxiliaries
         using proxy connector queue out.
         """
-        for conn in self.proxy_channels:
-            if not conn.queue_in.empty():
-                args, kwargs = conn.queue_in.get()
-                message = kwargs.get("msg")
-                if message is not None:
-                    self._dispatch_command(
-                        con_use=conn,
-                        **kwargs,
-                    )
-                self.channel.cc_send(*args, **kwargs)
+        self.channel.cc_send(*args, **kwargs)
+
+        self._dispatch_command(con_use=conn, **kwargs)
 
     def _dispatch_command(self, con_use: CChannel, **kwargs: dict):
         """Dispatch the current command to others connected auxiliaries.
@@ -560,18 +565,10 @@ class ProxyAuxiliary(DoubleThreadAuxiliary):
                 f"encountered error while receiving message via {self.channel}"
             )
 
-    def run_command(
-            self,
-            cmd_message: MsgType,
-            cmd_data: Any = None,
-            blocking: bool = True,
-            timeout_in_s: int = 5,
-        ) -> bool:
-        return True
+    def run_command(self, conn, *args, **kwargs):
+        with self.lock:
+            self._run_command(conn, *args, **kwargs)
+
 
     def _transmit_task(self):
-
-        while not self.stop_tx.is_set():
-
-            time.sleep(0.001)
-            self._run_command()
+        pass

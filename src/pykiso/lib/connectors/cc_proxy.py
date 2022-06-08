@@ -25,7 +25,9 @@ has to be used with a so called proxy auxiliary.
 
 import logging
 import queue
-from multiprocessing import Queue
+import threading
+#from multiprocessing import Queue
+from queue import Queue
 from typing import Dict, Union
 
 from pykiso import Message, Records
@@ -50,6 +52,12 @@ class CCProxy(CChannel):
         self.queue_in = None
         self.queue_out = None
         self.timeout = 1
+        self.lock_call = threading.Lock()
+        self.callback = None
+
+    def add_callback(self, func):
+        with self.lock_call:
+            self.callback = func
 
     def _cc_open(self) -> None:
         """Open proxy channel."""
@@ -63,7 +71,7 @@ class CCProxy(CChannel):
         self.queue_out = Queue()
         log.debug("Close proxy channel")
 
-    #@Records.execution_time
+    @Records.execution_time
     def _cc_send(self, *args: tuple, **kwargs: dict) -> None:
         """Populate the queue in of the proxy connector.
 
@@ -71,9 +79,11 @@ class CCProxy(CChannel):
         :param kwargs: dictionary containing named arguments
         """
         log.debug(f"put at proxy level: {args} {kwargs}")
-        self.queue_in.put((args, kwargs))
+        #self.queue_in.put((args, kwargs))
+        if self.callback is not None:
+            self.callback(self, *args, **kwargs)
 
-    #@Records.execution_time
+    @Records.execution_time
     def _cc_receive(self, timeout: float = 0.1, raw: bool = False) -> ProxyReturn:
         """Depopulate the queue out of the proxy connector.
 
