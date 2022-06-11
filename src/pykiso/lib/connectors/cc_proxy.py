@@ -102,14 +102,6 @@ class CCProxy(CChannel):
         try:
             return_response = self.queue_out.get(True, self.timeout)
             log.debug(f"received at proxy level : {return_response}")
-            return return_response
-        except queue.Empty:
-            return {"msg": None}
-
-    def _cc_recv(self, timeout: float = 0.1, raw: bool = False) -> ProxyReturn:
-        try:
-            return_response = self.queue_out.get(True, self.timeout)
-            log.debug(f"received at proxy level : {return_response}")
             if self.queue_rx is not None:
                 self.queue_rx.put(return_response)
             return return_response
