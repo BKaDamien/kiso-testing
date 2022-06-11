@@ -53,17 +53,17 @@ class TestCaseOverride(pykiso.BasicTest):
         logging.info(
             f"--------------- RUN: {self.test_suite_id}, {self.test_case_id} ---------------"
         )
-        for _ in range(1000):
+        for _ in range(1):
         # send random messages using aux1
 
             aux1.send_message(b"\x01\x02\x03")
-            aux2.send_message(b"\x04\x05\x06")
-            aux3.send_message(b"\x07\x08\x09")
-            aux4.send_message(b"\x01\x02\x03")
-            aux5.send_message(b"\x04\x05\x06")
-            aux6.send_message(b"\x07\x08\x09")
-            aux7.send_message(b"\x07\x08\x09")
-            time.sleep(0.050)
+            # aux2.send_message(b"\x04\x05\x06")
+            # aux3.send_message(b"\x07\x08\x09")
+            # aux4.send_message(b"\x01\x02\x03")
+            # aux5.send_message(b"\x04\x05\x06")
+            # aux6.send_message(b"\x07\x08\x09")
+            # aux7.send_message(b"\x07\x08\x09")
+            time.sleep(0.010)
         # # Just create a copy of aux one and two
         # self.aux1_copy = aux1.create_copy()
         # self.aux2_copy = aux2.create_copy()

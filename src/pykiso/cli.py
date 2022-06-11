@@ -211,7 +211,7 @@ def main(
     from viztracer import VizTracer
     # with cProfile.Profile() as pr:
 
-    with VizTracer(output_file="perf.json", ignore_c_function=True) as tracer:
+    with VizTracer(output_file="perf.json", ignore_c_function=True, max_stack_depth=10, tracer_entries=1000000) as tracer:
 
         if log_path and Path(log_path).is_file():
             Path(log_path).unlink()

@@ -71,7 +71,7 @@ class CCProxy(CChannel):
         self.queue_out = Queue()
         log.debug("Close proxy channel")
 
-    @Records.execution_time
+    #@Records.execution_time
     def _cc_send(self, *args: tuple, **kwargs: dict) -> None:
         """Populate the queue in of the proxy connector.
 
@@ -83,7 +83,7 @@ class CCProxy(CChannel):
         if self.callback is not None:
             self.callback(self, *args, **kwargs)
 
-    @Records.execution_time
+    #@Records.execution_time
     def _cc_receive(self, timeout: float = 0.1, raw: bool = False) -> ProxyReturn:
         """Depopulate the queue out of the proxy connector.
 
