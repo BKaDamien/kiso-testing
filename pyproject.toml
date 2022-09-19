@@ -54,7 +54,7 @@ Jinja2 = ">=2.11.0,<4.0.0"
 MarkupSafe = "~2.0.1" # Allow support for Jinja2 between 2.11 < x < 3
 
 [tool.poetry.dev-dependencies]
-black = "22.3.0"
+black = "22.8.0"
 bump2version = "*"
 coverage = { version = "^6.4", extras = ["toml"] }
 invoke = "*"
