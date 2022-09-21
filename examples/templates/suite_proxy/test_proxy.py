@@ -64,53 +64,53 @@ class TestCaseOverride(pykiso.BasicTest):
 
         logging.info(f"send 300 messages using aux1/aux2")
         # just send some requests
-        self._send_messages(300)
+        self._send_messages(10)
         # log the first 100 received messages, with the aux2
-        self._receive_message(100)
-
-        logging.info(
-            f">> Change proxy_aux channel dynamically and continue to send/receive <<"
-        )
-
-        logging.info(f"Stop current running auxiliaries")
-        self._stop_auxes()
-
-        # save current channel used by the proxy
-        self.pcan_channel = proxy_aux.channel
-        # change proxy attached channel to CCLoopback
-        proxy_aux.channel = CCLoopback()
-
-        logging.info(f"Restart all auxiliaries")
-        self._start_auxes()
-
-        logging.info(f">> Send and receive message using the connected CCLoopback <<")
-
-        logging.info(f"send 30 messages using aux1/aux2")
-        # just send some requests
-        self._send_messages(10)
-        # log the first 10 received messages, with the aux2
         self._receive_message(10)
 
-        logging.info(
-            f">> Switch back to the pcan channel and continue to send/receive <<"
-        )
+        # logging.info(
+        #     f">> Change proxy_aux channel dynamically and continue to send/receive <<"
+        # )
 
-        logging.info(f"Stop current running auxiliaries")
-        self._stop_auxes()
+        # logging.info(f"Stop current running auxiliaries")
+        # self._stop_auxes()
 
-        # switch back with pcan connector
-        proxy_aux.channel = self.pcan_channel
+        # # save current channel used by the proxy
+        # self.pcan_channel = proxy_aux.channel
+        # # change proxy attached channel to CCLoopback
+        # proxy_aux.channel = CCLoopback()
 
-        logging.info(f"Restart all auxiliaries")
-        self._start_auxes()
+        # logging.info(f"Restart all auxiliaries")
+        # self._start_auxes()
 
-        logging.info(f">> Send and receive message using the connected initial pcan <<")
+        # logging.info(f">> Send and receive message using the connected CCLoopback <<")
 
-        logging.info(f"send 30 messages using aux1/aux2")
-        # just send some requests
-        self._send_messages(10)
-        # log the first 10 received messages, with the aux2
-        self._receive_message(10)
+        # logging.info(f"send 30 messages using aux1/aux2")
+        # # just send some requests
+        # self._send_messages(10)
+        # # log the first 10 received messages, with the aux2
+        # self._receive_message(10)
+
+        # logging.info(
+        #     f">> Switch back to the pcan channel and continue to send/receive <<"
+        # )
+
+        # logging.info(f"Stop current running auxiliaries")
+        # self._stop_auxes()
+
+        # # switch back with pcan connector
+        # proxy_aux.channel = self.pcan_channel
+
+        # logging.info(f"Restart all auxiliaries")
+        # self._start_auxes()
+
+        # logging.info(f">> Send and receive message using the connected initial pcan <<")
+
+        # logging.info(f"send 30 messages using aux1/aux2")
+        # # just send some requests
+        # self._send_messages(10)
+        # # log the first 10 received messages, with the aux2
+        # self._receive_message(10)
 
     def _stop_auxes(self) -> None:
         """Stop all auxiliaries currently in use."""
