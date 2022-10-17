@@ -74,6 +74,8 @@ Commits have to follow following convention: https://www.conventionalcommits.org
 - Bump invoke from 1.7.1 to 1.7.3
 - Bump pylink-square from 0.14.2 to 0.14.3
 - Bump black from 22.8.0 to 22.10.0 ([#179](https://github.com/orhun/git-cliff/issues/179))
+- Bump coverage from 6.4.4 to 6.5.0 ([#181](https://github.com/orhun/git-cliff/issues/181))
+- Bump pytest-mock from 3.8.2 to 3.10.0 ([#178](https://github.com/orhun/git-cliff/issues/178))
 
 ### New Features
 
@@ -111,6 +113,7 @@ Commits have to follow following convention: https://www.conventionalcommits.org
 - Select test case with regex ([#146](https://github.com/orhun/git-cliff/issues/146))
 - Write stderr to file when file logging is activated ([#159](https://github.com/orhun/git-cliff/issues/159))
 - Ensure default behaviour when (suite case) id is 0 ([#177](https://github.com/orhun/git-cliff/issues/177))
+- Process connector ([#165](https://github.com/orhun/git-cliff/issues/165))
 
 ### Refactorings
 
@@ -152,6 +155,10 @@ Commits have to follow following convention: https://www.conventionalcommits.org
 - Skip poetry install
 - Add poetry installation
 - Replace auto-changelog
+
+### Ci[dependabot]
+
+- Update to monthly PRs ([#180](https://github.com/orhun/git-cliff/issues/180))
 
 ## Version 0.15.0 (in addition)
 
