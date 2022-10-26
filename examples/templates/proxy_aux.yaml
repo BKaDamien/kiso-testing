@@ -12,19 +12,19 @@ auxiliaries:
       # additional call of start method has to be performed.
       # By default, auto_start flag is set to True and "normal" ITF aux
       # creation mechanism is used.
-      auto_start: False
+      auto_start: True
     type: pykiso.lib.auxiliaries.proxy_auxiliary:ProxyAuxiliary
   aux1:
     connectors:
         com: proxy_com1
     config:
-      auto_start: False
+      auto_start: True
     type: pykiso.lib.auxiliaries.communication_auxiliary:CommunicationAuxiliary
   aux2:
     connectors:
         com: proxy_com2
     config:
-      auto_start: False
+      auto_start: True
     type: pykiso.lib.auxiliaries.communication_auxiliary:CommunicationAuxiliary
 
 #__________________________ Connectors section _________________________
