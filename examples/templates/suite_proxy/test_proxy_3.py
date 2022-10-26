@@ -29,7 +29,7 @@ from pykiso.auxiliaries import aux1, aux2, proxy_aux
 
 @pykiso.define_test_parameters(
     suite_id=2,
-    case_id=3,
+    case_id=5,
     aux_list=[aux1, aux2],
 )
 class TestCaseOverride(pykiso.BasicTest):
@@ -49,12 +49,13 @@ class TestCaseOverride(pykiso.BasicTest):
         logging.info(
             f"--------------- RUN: {self.test_suite_id}, {self.test_case_id} ---------------"
         )
-        logging.info("connect pcan ......")
-        proxy_aux.channel.open()
-        logging.info("PCAN connected")
 
         for idx in range(10):
             aux1.send_message(b'\x01\x02')
+
+        logging.info("disconnect pcan ......")
+        proxy_aux.channel.close()
+        logging.info("PCAN disconnected")
 
     def tearDown(self):
         """If a fixture is not use just override it like below."""
