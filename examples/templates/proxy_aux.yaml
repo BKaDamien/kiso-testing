@@ -4,7 +4,7 @@ auxiliaries:
     connectors:
         com: can_channel
     config:
-      aux_list : [aux1, aux2]
+      aux_list : [aux1, aux2, uds_aux]
       activate_trace : False
       trace_dir: ./suite_proxy
       trace_name: can_trace
@@ -12,27 +12,48 @@ auxiliaries:
       # additional call of start method has to be performed.
       # By default, auto_start flag is set to True and "normal" ITF aux
       # creation mechanism is used.
-      auto_start: False
+      auto_start: True
     type: pykiso.lib.auxiliaries.proxy_auxiliary:ProxyAuxiliary
   aux1:
     connectors:
         com: proxy_com1
     config:
-      auto_start: False
+      auto_start: True
     type: pykiso.lib.auxiliaries.communication_auxiliary:CommunicationAuxiliary
   aux2:
     connectors:
         com: proxy_com2
     config:
-      auto_start: False
+      auto_start: True
     type: pykiso.lib.auxiliaries.communication_auxiliary:CommunicationAuxiliary
-
+  uds_aux:
+      connectors:
+          com: proxy_com3
+      config:
+        odx_file_path: ~
+        request_id : 0xB0
+        response_id : 0xB1
+        uds_layer:
+          transport_protocol: 'CAN'
+          p2_can_client: 5
+          p2_can_server: 1
+        tp_layer:
+          addressing_type: 'NORMAL'
+          n_sa: 0xFF
+          n_ta: 0xFF
+          n_ae: 0xFF
+          m_type: 'DIAGNOSTICS'
+          discard_neg_resp: False
+      type: pykiso.lib.auxiliaries.udsaux.uds_auxiliary:UdsAuxiliary
 #__________________________ Connectors section _________________________
 connectors:
   proxy_com1:
     config: ~
     type: pykiso.lib.connectors.cc_proxy:CCProxy
   proxy_com2:
+    config: ~
+    type: pykiso.lib.connectors.cc_proxy:CCProxy
+  proxy_com3:
     config: ~
     type: pykiso.lib.connectors.cc_proxy:CCProxy
   can_channel:
