@@ -25,7 +25,7 @@ import time
 import pykiso
 
 # as usual import your auxiliairies
-from pykiso.auxiliaries import aux1, aux2, proxy_aux, uds_aux
+from pykiso.auxiliaries import uds_aux
 from pykiso.lib.connectors.cc_raw_loopback import CCLoopback
 
 
@@ -54,11 +54,7 @@ class TestCaseOverride(pykiso.BasicTest):
         logging.info(
             f"--------------- RUN: {self.test_suite_id}, {self.test_case_id} ---------------"
         )
-
-        logging.info(f">> Send diagnostic session control 0x01 <<")
-        for _ in range(200):
-            resp = uds_aux.send_uds_raw(b'\x10\x01')
-            logging.info(f"received response : {resp}")
+        loggin.info("just do important a stuff")
 
     def tearDown(self):
         """If a fixture is not use just override it like below."""
