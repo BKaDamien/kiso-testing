@@ -113,13 +113,13 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "brainstem"
-version = "2.9.26"
+version = "2.9.27"
 description = "Acroname BrainStem Software Control Package"
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "brainstem-2.9.26-py2.py3-none-any.whl", hash = "sha256:e4a132189703400da1f7d53c601bb45057412ecd48cdf1527863c6636704249f"},
+    {file = "brainstem-2.9.27-py2.py3-none-any.whl", hash = "sha256:b5a37ada85b97baab55a6d73cfd2cd65cbbef41c67ffddd121d8ff2b59f505db"},
 ]
 
 [package.dependencies]
