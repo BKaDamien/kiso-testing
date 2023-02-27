@@ -1585,14 +1585,14 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "robotframework"
-version = "3.2.2"
+version = "6.0.2"
 description = "Generic automation framework for acceptance testing and robotic process automation (RPA)"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 files = [
-    {file = "robotframework-3.2.2-py2.py3-none-any.whl", hash = "sha256:a0c325e79dc6dcdaba0398db8c3afefc337799b7b36b336f04b07be4fe4a9dd2"},
-    {file = "robotframework-3.2.2.zip", hash = "sha256:a0786a916d0572bd9d6afe26e95c6021e3df5dcafa0ece6b302e36366e58c24e"},
+    {file = "robotframework-6.0.2-py3-none-any.whl", hash = "sha256:634cd6f9fdc21142eadd9aacdddbfe7d3e2a757532b71d866dbb404cd0e66dac"},
+    {file = "robotframework-6.0.2.zip", hash = "sha256:6a9c06deb220099990f190c6e4e772675f625e4d5d84640fca6f0ad46ff538d0"},
 ]
 
 [[package]]
@@ -2078,4 +2078,4 @@ testrail = ["rich", "requests"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "431ea6c1a91bd8cad5ca941ebba911cc274006e4ad19695bff4c9dac960ae21d"
+content-hash = "35009354bc9ee127c695dfc5b9ab1133d0c49a915e92488e0ed8f7ef3b01a6bf"
